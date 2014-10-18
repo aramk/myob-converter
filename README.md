@@ -5,7 +5,7 @@ Converts MYOB files between interoperable formats.
 
 ## Installation
 
-To install all the dependences for building and testing the library:
+To install all the dependencies for building and testing the library:
 
 ```
 npm install
@@ -22,7 +22,7 @@ TODO
 
 ## Tests
 
-To run Karma tests in Chrome:
+To run Karma tests:
 
 ```
 grunt test
