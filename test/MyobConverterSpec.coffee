@@ -1,3 +1,6 @@
+expect = require('chai').expect
+MyobConverter = require('../src/MyobConverter')
+
 describe 'An MyobConverter', ->
 
   converter = null
@@ -6,6 +9,4 @@ describe 'An MyobConverter', ->
   afterEach -> converter = null
 
   it 'can be constructed', ->
-    expect(converter).not.toEqual(null)
-
-
+    expect(converter).not.to.equal(null)

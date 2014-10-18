@@ -29,33 +29,21 @@ module.exports = function(grunt) {
       }
     },
     shell: {
-      karmaStart: {
+    },
+    mochaTest: {
+      test: {
         options: {
-          stdout: true
+          reporter: 'spec',
+          require: 'coffee-script/register'
         },
-        command: ['cd test', '../' + NODE_DIR + '/karma/bin/karma start'].join('&&')
-      },
-      karmaCI: {
-        options: {
-          stdout: true
-        },
-        command: ['cd test',
-              '../' + NODE_DIR +
-              '/karma/bin/karma start --single-run --browsers PhantomJS'].join('&&')
-      },
-      buildRequireJS: {
-        options: {
-          stdout: false, stderr: true, failOnError: true
-        },
-        command: 'node ' + NODE_DIR + '/requirejs/bin/r.js -o ' + BUILD_FILE
+        src: ['test/**/*Spec.coffee']
       }
     }
   });
 
   grunt.registerTask('install', 'Installs dependencies.', []);
-  grunt.registerTask('build', 'Build a distributable package.', ['shell:buildRequireJS']);
-  grunt.registerTask('test', 'Runs tests.', ['shell:karmaStart']);
-  grunt.registerTask('test:ci', 'Runs tests.', ['shell:karmaCI']);
+  grunt.registerTask('test', 'Runs tests.', ['mochaTest']);
+  grunt.registerTask('test:ci', 'Runs tests.', ['mochaTest']);
 
   // FILES
 

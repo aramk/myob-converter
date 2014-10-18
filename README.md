@@ -22,19 +22,4 @@ TODO
 
 ## Tests
 
-To run Karma tests:
-
-```
-grunt test
-```
-
-To run karma manually:
-
-```
-cd test
-karma start --browsers <BrowserName>
-```
-
-## License
-
-Released under the MIT License.
+TODO
