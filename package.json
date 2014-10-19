@@ -32,9 +32,9 @@
     "requirejs": "~2.1.11"
   },
   "scripts": {
-    "postinstall": "./node_modules/.bin/grunt build",
-    "prepublish": "./node_modules/.bin/grunt build",
-    "postpublish": "./node_modules/.bin/grunt clean",
-    "test": "node --debug-brk ./node_modules/.bin/grunt test"
+    "postinstall": "grunt build",
+    "prepublish": "grunt build",
+    "postpublish": "grunt clean",
+    "test": "node --debug-brk grunt test"
   }
 }
