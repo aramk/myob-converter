@@ -14,9 +14,19 @@ describe 'A CsvTransformer', ->
 
   it 'can be constructed', -> expect(transformer).not.to.equal(null)
 
-  it 'can convert to JSON', ->
+  it 'can convert to JSON', (done) ->
     csv = getSampleCsv()
     transformer.toJson(csv).then (json) ->
-#      console.log json
       expect(json).not.to.be.null
+      expect(json.length).to.equal(103)
+      done()
 
+  it 'can convert from JSON', (done) ->
+    csv = getSampleCsv()
+    transformer.toJson(csv).then (json) ->
+      transformer.fromJson(json).then (newCsv) ->
+        transformer.toJson(newCsv).then (newJson) ->
+          # CSV input and stringifier will produce slightly different whitespace, so we check only
+          # the JSON.
+          expect(newJson).to.deep.equal(json)
+          done()

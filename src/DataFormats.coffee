@@ -1,10 +1,10 @@
-ItemCsvTransformer = require('./ItemCsvTransformer')
+CsvTransformer = require('./CsvTransformer')
 
 DataFormats =
   csv:
     name: 'CSV'
     extension: 'csv'
-    itemTransformer: ItemCsvTransformer
+    transformer: CsvTransformer
   json:
     name: 'JSON'
     extension: 'json'
