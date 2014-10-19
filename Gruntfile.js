@@ -8,10 +8,7 @@ module.exports = function(grunt) {
 
   var MODULE_NAME = 'myob-converter';
   var SRC_DIR = 'src';
-  var BUILD_DIR = 'build';
-  var NODE_DIR = 'node_modules';
-  var DIST_DIR = 'dist';
-  var BUILD_FILE = 'r.profile.js';
+  var DIST_DIR = 'lib';
 
   // Define the configuration for all the tasks.
   grunt.initConfig({
@@ -28,7 +25,15 @@ module.exports = function(grunt) {
         ]
       }
     },
-    shell: {
+    coffee: {
+      dist: {
+        expand: true,
+        flatten: true,
+        cwd: SRC_DIR,
+        src: ['*.coffee'],
+        dest: DIST_DIR,
+        ext: '.js'
+      }
     },
     mochaTest: {
       test: {
@@ -48,7 +53,7 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask('install', 'Installs dependencies.', []);
+  grunt.registerTask('build', 'Build a distributable package.', ['coffee:dist']);
   grunt.registerTask('test', 'Runs tests.', ['mochaTest']);
   grunt.registerTask('inspector', 'Runs node-inspector.', ['node-inspector:dev']);
   grunt.registerTask('test:ci', 'Runs tests.', ['mochaTest']);
@@ -78,10 +83,6 @@ module.exports = function(grunt) {
 
   function distPath() {
     return _prefixPath(DIST_DIR, arguments);
-  }
-
-  function buildPath() {
-    return _prefixPath(BUILD_DIR, arguments);
   }
 
 };
