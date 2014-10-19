@@ -34,7 +34,7 @@
   "scripts": {
     "postinstall": "grunt build",
     "prepublish": "grunt build",
-    "postpublish": "grunt clean",
+    "postpublish": "grunt clean:dist",
     "test": "node --debug-brk grunt test"
   }
 }
