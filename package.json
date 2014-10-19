@@ -13,6 +13,8 @@
     "url": "https://github.com/aramk/myob-converter.git"
   },
   "dependencies": {
+    "csv": "^0.4.0",
+    "q": "^1.0.1",
     "underscore": "^1.7.0"
   },
   "devDependencies": {
@@ -21,12 +23,13 @@
     "grunt-cli": "~0.1.12",
     "grunt-contrib-copy": "~0.5.0",
     "grunt-mocha-test": "^0.12.1",
+    "grunt-node-inspector": "^0.1.5",
     "grunt-shell": "^1.1.1",
     "load-grunt-tasks": "~0.2.1",
     "mocha": "^1.21.5",
     "requirejs": "~2.1.11"
   },
   "scripts": {
-    "test": "grunt test"
+    "test": "node --debug-brk ./node_modules/.bin/grunt test"
   }
 }

@@ -38,11 +38,19 @@ module.exports = function(grunt) {
         },
         src: ['test/**/*Spec.coffee']
       }
+    },
+    'node-inspector': {
+      dev: {
+        options: {
+          'hidden': ['node_modules']
+        }
+      }
     }
   });
 
   grunt.registerTask('install', 'Installs dependencies.', []);
   grunt.registerTask('test', 'Runs tests.', ['mochaTest']);
+  grunt.registerTask('inspector', 'Runs node-inspector.', ['node-inspector:dev']);
   grunt.registerTask('test:ci', 'Runs tests.', ['mochaTest']);
 
   // FILES

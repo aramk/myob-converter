@@ -1,9 +1,11 @@
-JsonTransformer = require('./JsonTransformer')
+CsvTransformer = require('./CsvTransformer')
 
-class ItemCsvTransformer extends JsonTransformer
+class ItemCsvTransformer extends CsvTransformer
 
-  toJson: (data) -> {}
+  toJson: (data) ->
+    super(data).then(csvJson)
 
-  fromJson: (data) -> ''
+  fromJson: (data) ->
+    # TODO
 
 module.exports = ItemCsvTransformer
