@@ -8,7 +8,7 @@
     "test": "test",
     "lib": "lib"
   },
-  "main": "lib",
+  "main": "./lib",
   "repository": {
     "type": "git",
     "url": "https://github.com/aramk/myob-converter.git"
@@ -33,6 +33,7 @@
   },
   "scripts": {
     "prepublish": "./node_modules/.bin/grunt build",
+    "postpublish": "./node_modules/.bin/grunt clean",
     "test": "node --debug-brk ./node_modules/.bin/grunt test"
   }
 }
