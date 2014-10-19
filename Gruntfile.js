@@ -54,6 +54,7 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('build', 'Build a distributable package.', ['coffee:dist']);
+  grunt.registerTask('clean', 'Cleans built files.', ['clean:dist']);
   grunt.registerTask('test', 'Runs tests.', ['mochaTest']);
   grunt.registerTask('inspector', 'Runs node-inspector.', ['node-inspector:dev']);
   grunt.registerTask('test:ci', 'Runs tests.', ['mochaTest']);
