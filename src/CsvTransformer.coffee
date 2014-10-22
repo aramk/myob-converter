@@ -1,12 +1,16 @@
-csv = require('csv');
-Q = require('q');
+_ = require('underscore')
+csv = require('csv')
+Q = require('q')
 JsonTransformer = require('./JsonTransformer')
 
 class CsvTransformer extends JsonTransformer
 
-  toJson: (data) ->
+  toJson: (data) -> @_toJson(data)
+
+  _toJson: (data, args) ->
+    args = _.extend({columns: true}, args)
     df = Q.defer()
-    csv.parse data, {columns: true}, (err, result) ->
+    csv.parse data, args, (err, result) ->
       if err
         df.reject(err)
       else

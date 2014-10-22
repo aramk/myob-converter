@@ -1,7 +1,8 @@
 module.exports = function(grunt) {
 
   var path = require('path'),
-      fs = require('fs');
+      fs = require('fs'),
+      shell = require('shelljs');
 
   // Load grunt tasks automatically
   require('load-grunt-tasks')(grunt);
@@ -43,7 +44,7 @@ module.exports = function(grunt) {
         },
         src: ['test/**/*Spec.coffee']
       }
-    },
+    },  
     'node-inspector': {
       dev: {
         options: {
@@ -54,7 +55,14 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('build', 'Build a distributable package.', ['coffee:dist']);
-  grunt.registerTask('test', 'Runs tests.', ['mochaTest']);
+  grunt.registerTask('test', 'Runs tests.', function (arg1) {
+    if (arg1 === undefined) {
+      grunt.run.task('mochaTest');
+    } else {
+      shell.exec('mocha --reporter spec --require coffee-script/register test/' + arg1);
+    }
+  });
+
   grunt.registerTask('inspector', 'Runs node-inspector.', ['node-inspector:dev']);
   grunt.registerTask('test:ci', 'Runs tests.', ['mochaTest']);
 
