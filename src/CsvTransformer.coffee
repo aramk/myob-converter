@@ -17,7 +17,9 @@ class CsvTransformer extends JsonTransformer
         df.resolve(result)
     df.promise
 
-  fromJson: (data) ->
+  fromJson: (data) -> @_fromJson(data)
+
+  _fromJson: (data) ->
     df = Q.defer()
     csv.stringify data, {header: true}, (err, result) ->
       if err

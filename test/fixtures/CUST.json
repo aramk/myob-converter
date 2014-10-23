@@ -35,7 +35,13 @@
     "Custom Field 2": null,
     "Custom Field 3": null,
     "Billing Rate": "0",
-    "Terms": {},
+    "Terms": {
+      "Payment is Due": "2",
+      "Discount Days": "0",
+      "Balance Due Days": "7",
+      "% Discount": "0",
+      "% Monthly Charge": "0"
+    },
     "Tax Code": "GST",
     "Credit Limit": "0",
     "Tax ID No.": null,
