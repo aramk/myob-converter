@@ -38,6 +38,8 @@ class CustomersCsvTransformer extends CsvTransformer
         if setFieldValue(name, value, subFieldsBuffer)
           hasNonEmptySubValue = true
       _.each header, (field, i) =>
+        # If the current field is the first sub field, we must add it to the header
+        # (previous field).
         subFieldParts = getSubFieldParts(field)
         lastIndex = i - 1
         if i > 0 && subFieldParts
@@ -54,9 +56,10 @@ class CustomersCsvTransformer extends CsvTransformer
           @_addSubFields(subHeader, subFieldsBuffer, rowJson) if hasNonEmptySubValue
           resetSubFieldBuffer()
         else if i > 0
+          # Add field and value from previous index. If we are at the last index, include that as
+          # well.
           addField(header[lastIndex], row[lastIndex])
-        else if i == rows.length - 1
-          addField(field, row[i])
+          addField(field, row[i]) if i == header.length - 1
       rowsJson.push(rowJson) if hasNonEmptyValue
     rowsJson
 
@@ -81,8 +84,22 @@ class CustomersCsvTransformer extends CsvTransformer
   fromJson: (data) ->
     rowsCsv = []
     headers = @_getJsonHeaders(data)
-    \ test this out and use _mapSubFields instead.
     console.log headers
+    return
+    headersIndexMap = {}
+    _.map headers, (field, i) -> headersIndexMap[field] = i
+    console.log headersIndexMap
+    console.log ''
+
+    @_mapJsonSubFields data, (args) ->
+      rowCsv = []
+      rowsCsv.push(rowCsv)
+      fieldIndex = headersIndexMap[args.csvField]
+      unless fieldIndex
+        console.log fieldIndex, args
+      rowCsv[fieldIndex] = args.value
+
+    console.log rowsCsv[0]
     return ''
 
     headersMap = {}
@@ -116,90 +133,81 @@ class CustomersCsvTransformer extends CsvTransformer
             addFieldValue(CSV_SUBFIELD_PREFIX + subField, value[subField], rowCsv)
         else
           addFieldValue(field, value, rowCsv)
+    
     # console.log headers
     console.log rowsCsv
     rowsCsv
 
-  _mapSubFields: (data, callback) ->
-    # headers = []
-    # headersMap = {}
-    # addHeader = (field) ->
-    #   # NOTE: Some subfields will be repeated for numbered subheadings, so headersMap will be useless for these.
-    #   # headersMap[field] = headers.length
-    #   headers.push(field)
-    _.each data, (row) ->
-      _.each row, (value, field) ->
-        # if headersMap[field] != undefined
+  _mapJsonSubFields: (data, callback) ->
+    _.each data, (row, rowIndex) =>
+      _.each row, (value, field) =>
+        context = {fields: [field], value: value, rowIndex: rowIndex, row: row}
+        # unless value
+        #   callback(_.extend(context, {csvField: field}))
         #   return
-        if value
-          hasSubFieldValues = false
-          if Types.isArray(value)
-            # If no items exist in this subfield, search for the first one in all rows. This will only occur once
-            # for this subheader.
-            subFields = value[0]
-            hasSubFieldValues = !!subFields
-          else if Types.isObjectLiteral(value)
-            subFields = value
-            hasSubFieldValues = Object.keys(subFields).length > 0
-          else
-            return
-          unless hasSubFieldValues
-            _.find data, (otherRow) ->
-              return if row == otherRow
-              subFields = otherRow[field]
-              return subFields != undefined && subFields.length > 0
-          # If no subfields are found for this subheading, ignore it.
-          return unless subFields
-          firstSubField = Object.keys(subFields)[0]
-          callback(field + ' - ' + firstSubField)
-          delete subFields[firstSubField]
-          _.each subFields, (subValue, subField) ->
-            callback(CSV_SUBFIELD_PREFIX + subField)
+        # For values which are objects or arrays, add their subfields.
+        # hasSubFieldValues = false
+        # subFieldsArray = null
+        if Types.isArray(value)
+          # subFieldsArray = value
+          _.each value, (valuesArray, i) =>
+            @_addSubFieldHeaders field, valuesArray, callback, context,
+              (field, firstSubField) -> field + ' ' + (i + 1) + ' - ' + firstSubField
+          # If no items exist in this subfield, search for the first one in all rows, since it
+          # will include all subfield keys (even if the value is null).
+          # subFields = value[0]
+          # hasSubFieldValues = !!subFields
+        else if Types.isObjectLiteral(value)
+          @_addSubFieldHeaders(field, value, callback, context)
         else
-          callback(field)
-    # headers
+          callback(_.extend(context, {csvField: field}))
+          # subFieldsArray = [value]
+          # subFields = value
+          # hasSubFieldValues = Object.keys(subFields).length > 0
+        # else
+        #   return
+        # unless hasSubFieldValues
+        #   _.find data, (otherRow) ->
+        #     return if row == otherRow
+        #     subFields = otherRow[field]
+        #     return subFields != undefined && subFields.length > 0
+        # If no subfields are found for this subheading, ignore it.
+        # return unless subFields
+        # firstSubField = Object.keys(subFields)[0]
+        # headerContext = _.extend(context, {csvField: field + ' 1 - ' + firstSubField})
+        # headerContext.fields.push(firstSubField)
+        # callback(headerContext)
+        # delete subFields[firstSubField]
+        # _.each subFields, (subValue, subField) ->
+        #   callback(_.extend(context, {csvField: CSV_SUBFIELD_PREFIX + subField}))
+
+  _addSubFieldHeaders: (headerField, subFields, callback, context, getHeaderFieldId) ->
+    getHeaderFieldId ?= (field, firstSubField) -> headerField + ' - ' + firstSubField
+    firstSubField = Object.keys(subFields)[0]
+    headerContext = _.extend(context, {csvField: getHeaderFieldId(headerField, firstSubField)})
+    headerContext.fields.push(firstSubField)
+    callback(headerContext)
+    delete subFields[firstSubField]
+    _.each subFields, (subValue, subField) ->
+      callback(_.extend(context, {csvField: CSV_SUBFIELD_PREFIX + subField}))
 
   _getJsonHeaders: (data) ->
     headers = []
     headersMap = {}
     addHeader = (field) ->
-      # NOTE: Some subfields will be repeated for numbered subheadings, so headersMap will be useless for these.
+      # NOTE: Some subfields will be repeated for numbered subheadings, so headersMap will be
+      # useless for these.
       headersMap[field] = headers.length
       headers.push(field)
-    @_mapSubFields data, addHeader
-    # _.each data, (row) ->
-    #   _.each row, (value, field) ->
-    #     if headersMap[field] != undefined
-    #       return
-    #     if value
-    #       hasSubFieldValues = false
-    #       if Types.isArray(value)
-    #         # If no items exist in this subfield, search for the first one in all rows. This will only occur once
-    #         # for this subheader.
-    #         subFields = value[0]
-    #         hasSubFieldValues = !!subFields
-    #       else if Types.isObjectLiteral(value)
-    #         subFields = value
-    #         hasSubFieldValues = Object.keys(subFields).length > 0
-    #       else
-    #         return
-    #       unless hasSubFieldValues
-    #         _.find data, (otherRow) ->
-    #           return if row == otherRow
-    #           subFields = otherRow[field]
-    #           return subFields != undefined && subFields.length > 0
-    #       # If no subfields are found for this subheading, ignore it.
-    #       return unless subFields
-    #       firstSubField = Object.keys(subFields)[0]
-    #       addHeader(field + ' - ' + firstSubField)
-    #       delete subFields[firstSubField]
-    #       _.each subFields, (subValue, subField) ->
-    #         addHeader(CSV_SUBFIELD_PREFIX + subField)
-    #     else
-    #       addHeader(field)
+    @_mapJsonSubFields data, (args) -> addHeader(args.csvField)
     headers
 
-CSV_SUBFIELD_PREFIX = '           - '
+####################################################################################################
+# AUXILIARY
+####################################################################################################
+
+# NOTE: This contains tabs and spaces.
+CSV_SUBFIELD_PREFIX = "           - "
 getNumberedParts = (name) -> name.match(/^(\w+)\s+(\d+)\s*$/)
 # Adds the given value to the given array if it is not undefined or an empty string. If an object is
 # also provided, it is used in place of the value.
