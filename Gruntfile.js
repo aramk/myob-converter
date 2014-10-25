@@ -29,9 +29,9 @@ module.exports = function(grunt) {
     coffee: {
       dist: {
         expand: true,
-        flatten: true,
+        flatten: false,
         cwd: SRC_DIR,
-        src: ['*.coffee'],
+        src: ['**/*.coffee'],
         dest: DIST_DIR,
         ext: '.js'
       }
