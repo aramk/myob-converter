@@ -23,23 +23,27 @@ describe 'A CsvTransformer', ->
       expect(json).to.deep.equal(expectedJson)
       done()
 
-  it 'can get json headers', ->
+  xit 'can get CSV headers', ->
     expectedJsonHeaders = JSON.parse(getFixtureJsonHeaders())
-    headers = transformer._getJsonHeaders(expectedJson)
+    headers = transformer._getCsvHeaders(expectedJson)
     expect(headers).to.deep.equal(expectedJsonHeaders)
     console.log headers
 
-  # it 'can convert from JSON', (done) ->
-  #   expectedCsv = getFixtureCsv()
-  #   expectedJson = JSON.parse(getFixtureJson())
-  #   transformer.toJson(expectedCsv).then (json) ->
-  #     transformer.fromJson(json).then (newCsv) ->
-  #       console.log newCsv
-        # transformer.toJson(newCsv).then (newJson) ->
-        #   # CSV input and stringifier will produce slightly different whitespace, so we check only
-        #   # the JSON.
-        #   expect(newJson).to.deep.equal(json)
-        #   expect(newJson).to.deep.equal(expectedJson)
-        #   done()
+  it 'can convert from JSON', (done) ->
+    expectedCsv = getFixtureCsv()
+    expectedJson = JSON.parse(getFixtureJson())
+    transformer.toJson(expectedCsv).then (json) ->
+      transformer.fromJson(json).then (newCsv) ->
+        # console.log 'newCsv', newCsv
+        transformer.toJson(newCsv).then (newJson) ->
+          # CSV input and stringifier will produce slightly different whitespace, so we check only
+          # the JSON.
+          console.log JSON.stringify(newJson)
+          console.log '\n'
+          console.log  JSON.stringify(json)
+          console.log '\n'
+          expect(newJson).to.deep.equal(json)
+          expect(newJson).to.deep.equal(expectedJson)
+          done()
 
 

@@ -83,115 +83,87 @@ class CustomersCsvTransformer extends CsvTransformer
 
   fromJson: (data) ->
     rowsCsv = []
-    headers = @_getJsonHeaders(data)
-    console.log headers
-    return
+    headers = @_getCsvHeaders(data)
     headersIndexMap = {}
     _.map headers, (field, i) -> headersIndexMap[field] = i
-    console.log headersIndexMap
-    console.log ''
 
+    getOrAddRow = (rowIndex) -> rowsCsv[rowIndex] ?= []
     @_mapJsonSubFields data, (args) ->
-      rowCsv = []
-      rowsCsv.push(rowCsv)
+      rowCsv = getOrAddRow(args.rowIndex)
       fieldIndex = headersIndexMap[args.csvField]
-      unless fieldIndex
-        console.log fieldIndex, args
+      # console.log 'args', fieldIndex, args.value, rowCsv
+      return unless fieldIndex?
       rowCsv[fieldIndex] = args.value
+      # console.log 'rowCsv', rowCsv
+      # console.log rowCsv
 
-    console.log rowsCsv[0]
-    return ''
+    # Add headers last, since rowIndex starts from 0.
+    rowsCsv.unshift(headers)
 
-    headersMap = {}
-    _.each headers, (field, i) ->
-      headersMap[field] = i
-    rowsCsv.push(headers)
-    addFieldValue = (field, value, rowCsv) ->
-      index = headersMap[field]
-      return unless index?
-      rowCsv[index] = value
+    @_fromJson(rowsCsv)
 
-    _.each data, (rowJson) ->
-      rowCsv = []
-      rowsCsv.push(rowCsv)
-      _.each rowJson, (value, field) ->
-        if Types.isArray(value)
-          console.log 'skip'
-        else if Types.isObjectLiteral(value)
-          # Treat inner objects as sub-fields.
-          # TODO(aramk) Use hasSubFieldValues. See if we can reuse the logic for getting headers.
-          if value.length == 0
-            # Ignore subfields without any fields.
-            return
-          # TODO(aramk) Relies on order in object properties.
-          subFields = Object.keys(value)
-          firstSubField = subFields.shift()
-          subHeader = field + ' - ' + firstSubField
-          addFieldValue(subHeader, value[firstSubField], rowCsv)
-          _.each subFields, (subField) ->
-            # TODO(aramk) Add correct number of leading spaces.
-            addFieldValue(CSV_SUBFIELD_PREFIX + subField, value[subField], rowCsv)
-        else
-          addFieldValue(field, value, rowCsv)
-    
-    # console.log headers
-    console.log rowsCsv
-    rowsCsv
+    # headersMap = {}
+    # _.each headers, (field, i) ->
+    #   headersMap[field] = i
+    # rowsCsv.push(headers)
+    # addFieldValue = (field, value, rowCsv) ->
+    #   index = headersMap[field]
+    #   return unless index?
+    #   rowCsv[index] = value
+
+    # _.each data, (rowJson) ->
+    #   rowCsv = []
+    #   rowsCsv.push(rowCsv)
+    #   _.each rowJson, (value, field) ->
+    #     if Types.isArray(value)
+    #       console.log 'skip'
+    #     else if Types.isObjectLiteral(value)
+    #       # Treat inner objects as sub-fields.
+    #       # TODO(aramk) Use hasSubFieldValues. See if we can reuse the logic for getting headers.
+    #       if value.length == 0
+    #         # Ignore subfields without any fields.
+    #         return
+    #       # TODO(aramk) Relies on order in object properties.
+    #       subFields = Object.keys(value)
+    #       firstSubField = subFields.shift()
+    #       subHeader = field + ' - ' + firstSubField
+    #       addFieldValue(subHeader, value[firstSubField], rowCsv)
+    #       _.each subFields, (subField) ->
+    #         # TODO(aramk) Add correct number of leading spaces.
+    #         addFieldValue(CSV_SUBFIELD_PREFIX + subField, value[subField], rowCsv)
+    #     else
+    #       addFieldValue(field, value, rowCsv)
+    #
+    # console.log rowsCsv
+    # rowsCsv
 
   _mapJsonSubFields: (data, callback) ->
     _.each data, (row, rowIndex) =>
       _.each row, (value, field) =>
-        context = {fields: [field], value: value, rowIndex: rowIndex, row: row}
-        # unless value
-        #   callback(_.extend(context, {csvField: field}))
-        #   return
-        # For values which are objects or arrays, add their subfields.
-        # hasSubFieldValues = false
-        # subFieldsArray = null
+        context = {fields: [field], rowIndex: rowIndex, row: row}
         if Types.isArray(value)
-          # subFieldsArray = value
           _.each value, (valuesArray, i) =>
             @_addSubFieldHeaders field, valuesArray, callback, context,
               (field, firstSubField) -> field + ' ' + (i + 1) + ' - ' + firstSubField
-          # If no items exist in this subfield, search for the first one in all rows, since it
-          # will include all subfield keys (even if the value is null).
-          # subFields = value[0]
-          # hasSubFieldValues = !!subFields
         else if Types.isObjectLiteral(value)
           @_addSubFieldHeaders(field, value, callback, context)
         else
-          callback(_.extend(context, {csvField: field}))
-          # subFieldsArray = [value]
-          # subFields = value
-          # hasSubFieldValues = Object.keys(subFields).length > 0
-        # else
-        #   return
-        # unless hasSubFieldValues
-        #   _.find data, (otherRow) ->
-        #     return if row == otherRow
-        #     subFields = otherRow[field]
-        #     return subFields != undefined && subFields.length > 0
-        # If no subfields are found for this subheading, ignore it.
-        # return unless subFields
-        # firstSubField = Object.keys(subFields)[0]
-        # headerContext = _.extend(context, {csvField: field + ' 1 - ' + firstSubField})
-        # headerContext.fields.push(firstSubField)
-        # callback(headerContext)
-        # delete subFields[firstSubField]
-        # _.each subFields, (subValue, subField) ->
-        #   callback(_.extend(context, {csvField: CSV_SUBFIELD_PREFIX + subField}))
+          callback(_.extend(context, {csvField: field, value: value}))
 
   _addSubFieldHeaders: (headerField, subFields, callback, context, getHeaderFieldId) ->
     getHeaderFieldId ?= (field, firstSubField) -> headerField + ' - ' + firstSubField
     firstSubField = Object.keys(subFields)[0]
-    headerContext = _.extend(context, {csvField: getHeaderFieldId(headerField, firstSubField)})
+    headerContext = _.extend(context, {
+      csvField: getHeaderFieldId(headerField, firstSubField),
+      value: subFields[firstSubField]
+    })
     headerContext.fields.push(firstSubField)
     callback(headerContext)
     delete subFields[firstSubField]
     _.each subFields, (subValue, subField) ->
-      callback(_.extend(context, {csvField: CSV_SUBFIELD_PREFIX + subField}))
+      callback(_.extend(context, {csvField: CSV_SUBFIELD_PREFIX + subField, value: subValue}))
 
-  _getJsonHeaders: (data) ->
+  _getCsvHeaders: (data) ->
     headers = []
     headersMap = {}
     addHeader = (field) ->
