@@ -1,5 +1,5 @@
 Q = require('q')
-_ = require('underscore')
+_ = require('lodash')
 CsvTransformer = require('./CsvTransformer')
 Types = require('./util/Types')
 
@@ -86,56 +86,16 @@ class CustomersCsvTransformer extends CsvTransformer
     headers = @_getCsvHeaders(data)
     headersIndexMap = {}
     _.map headers, (field, i) -> headersIndexMap[field] = i
-
     getOrAddRow = (rowIndex) -> rowsCsv[rowIndex] ?= []
     @_mapJsonSubFields data, (args) ->
       rowCsv = getOrAddRow(args.rowIndex)
       fieldIndex = headersIndexMap[args.csvField]
-      # console.log 'args', fieldIndex, args.value, rowCsv
-      return unless fieldIndex?
+      unless fieldIndex?
+        throw new Error('Cannot find header index for field ' + args.csvField)
       rowCsv[fieldIndex] = args.value
-      # console.log 'rowCsv', rowCsv
-      # console.log rowCsv
-
     # Add headers last, since rowIndex starts from 0.
     rowsCsv.unshift(headers)
-
     @_fromJson(rowsCsv)
-
-    # headersMap = {}
-    # _.each headers, (field, i) ->
-    #   headersMap[field] = i
-    # rowsCsv.push(headers)
-    # addFieldValue = (field, value, rowCsv) ->
-    #   index = headersMap[field]
-    #   return unless index?
-    #   rowCsv[index] = value
-
-    # _.each data, (rowJson) ->
-    #   rowCsv = []
-    #   rowsCsv.push(rowCsv)
-    #   _.each rowJson, (value, field) ->
-    #     if Types.isArray(value)
-    #       console.log 'skip'
-    #     else if Types.isObjectLiteral(value)
-    #       # Treat inner objects as sub-fields.
-    #       # TODO(aramk) Use hasSubFieldValues. See if we can reuse the logic for getting headers.
-    #       if value.length == 0
-    #         # Ignore subfields without any fields.
-    #         return
-    #       # TODO(aramk) Relies on order in object properties.
-    #       subFields = Object.keys(value)
-    #       firstSubField = subFields.shift()
-    #       subHeader = field + ' - ' + firstSubField
-    #       addFieldValue(subHeader, value[firstSubField], rowCsv)
-    #       _.each subFields, (subField) ->
-    #         # TODO(aramk) Add correct number of leading spaces.
-    #         addFieldValue(CSV_SUBFIELD_PREFIX + subField, value[subField], rowCsv)
-    #     else
-    #       addFieldValue(field, value, rowCsv)
-    #
-    # console.log rowsCsv
-    # rowsCsv
 
   _mapJsonSubFields: (data, callback) ->
     _.each data, (row, rowIndex) =>
@@ -152,15 +112,16 @@ class CustomersCsvTransformer extends CsvTransformer
 
   _addSubFieldHeaders: (headerField, subFields, callback, context, getHeaderFieldId) ->
     getHeaderFieldId ?= (field, firstSubField) -> headerField + ' - ' + firstSubField
-    firstSubField = Object.keys(subFields)[0]
+    subFieldKeys = Object.keys(subFields)
+    firstSubField = subFieldKeys.shift()
     headerContext = _.extend(context, {
       csvField: getHeaderFieldId(headerField, firstSubField),
       value: subFields[firstSubField]
     })
     headerContext.fields.push(firstSubField)
     callback(headerContext)
-    delete subFields[firstSubField]
-    _.each subFields, (subValue, subField) ->
+    _.each subFieldKeys, (subField) ->
+      subValue = subFields[subField]
       callback(_.extend(context, {csvField: CSV_SUBFIELD_PREFIX + subField, value: subValue}))
 
   _getCsvHeaders: (data) ->
@@ -179,7 +140,7 @@ class CustomersCsvTransformer extends CsvTransformer
 ####################################################################################################
 
 # NOTE: This contains tabs and spaces.
-CSV_SUBFIELD_PREFIX = "           - "
+CSV_SUBFIELD_PREFIX = '           - '
 getNumberedParts = (name) -> name.match(/^(\w+)\s+(\d+)\s*$/)
 # Adds the given value to the given array if it is not undefined or an empty string. If an object is
 # also provided, it is used in place of the value.

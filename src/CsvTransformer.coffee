@@ -1,4 +1,4 @@
-_ = require('underscore')
+_ = require('lodash')
 csv = require('csv')
 Q = require('q')
 JsonTransformer = require('./JsonTransformer')

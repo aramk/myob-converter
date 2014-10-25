@@ -15,8 +15,8 @@
   },
   "dependencies": {
     "csv": "^0.4.0",
-    "q": "git+https://github.com/aramk/q.git#v1",
-    "underscore": "^1.7.0"
+    "lodash": "^2.4.1",
+    "q": "git+https://github.com/aramk/q.git#v1"
   },
   "devDependencies": {
     "chai": "^1.9.2",

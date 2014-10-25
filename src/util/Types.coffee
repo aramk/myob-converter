@@ -1,3 +1,5 @@
+# TODO(aramk) Taken from utility library - add it as a dependency.
+
 Types =
 
   getTypeOf: (object) ->
