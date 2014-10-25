@@ -7,7 +7,7 @@ getFixtureCsv = -> TestUtils.readFixture('CUST.csv')
 getFixtureJson = -> TestUtils.readFixture('CUST.json')
 getFixtureJsonHeaders = -> TestUtils.readFixture('CUST_headers.json')
 
-describe 'A CsvTransformer', ->
+describe 'A CustomersCsvTransformer', ->
 
   transformer = expectedCsv = expectedJson = null
 
