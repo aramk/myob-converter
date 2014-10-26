@@ -57,7 +57,7 @@ module.exports = function(grunt) {
   grunt.registerTask('build', 'Build a distributable package.', ['coffee:dist']);
   grunt.registerTask('test', 'Runs tests.', function (arg1) {
     if (arg1 === undefined) {
-      grunt.run.task('mochaTest');
+      grunt.task.run('mochaTest');
     } else {
       shell.exec('mocha --reporter spec --require coffee-script/register test/' + arg1);
     }
