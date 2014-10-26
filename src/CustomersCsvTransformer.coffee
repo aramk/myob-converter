@@ -14,7 +14,7 @@ class CustomersCsvTransformer extends CsvTransformer
     rowsJson = []
     header = rows.shift()
     reSubFieldParts = /^\s*-\s*([^-]+)/
-    reSubHeaderParts = /^\s*([^-]+)-([^-]+)\s*$/
+    reSubHeaderParts = /^\s*([^\s-][^-]*)\s*-\s*([^\s-][^-]*)\s*$/
     getSubFieldParts = (name) -> name.match(reSubFieldParts)
     getSubFieldName = (name) -> name.replace(reSubFieldParts, '').trim()
     getSubHeaderParts = (name) -> name.match(reSubHeaderParts)
@@ -22,6 +22,8 @@ class CustomersCsvTransformer extends CsvTransformer
     setFieldValue = (name, value, obj) ->
       obj[name.trim()] = sanitizeValue(value)
       value
+# TODO(aramk) Remove!
+    rows = [rows[0]]
     _.each rows, (row) =>
       rowJson = {}
       hasNonEmptyValue = false
@@ -37,29 +39,54 @@ class CustomersCsvTransformer extends CsvTransformer
       addSubField = (name, value) ->
         if setFieldValue(name, value, subFieldsBuffer)
           hasNonEmptySubValue = true
-      _.each header, (field, i) =>
-        # If the current field is the first sub field, we must add it to the header
-        # (previous field).
-        subFieldParts = getSubFieldParts(field)
-        lastIndex = i - 1
-        if i > 0 && subFieldParts
-          if !isCurrentSubField
-            isCurrentSubField = true
-            subHeaderParts = getSubHeaderParts(header[lastIndex])
-            subHeader = subHeaderParts[1].trim()
-            addSubField(subHeaderParts[2], row[lastIndex])
-          value = row[i]
-          addSubField(subFieldParts[1], row[i])
-        else if isCurrentSubField
-          # Ensure all subheadings are present.
-          @_setUpHeaderContainer(subHeader, rowJson)
-          @_addSubFields(subHeader, subFieldsBuffer, rowJson) if hasNonEmptySubValue
+      addSubFieldBuffer = =>
+        if hasNonEmptySubValue && subHeader
+          # console.log 'subFieldsBuffer 1', subFieldsBuffer
+          @_addSubFields(subHeader, subFieldsBuffer, rowJson)
           resetSubFieldBuffer()
-        else if i > 0
-          # Add field and value from previous index. If we are at the last index, include that as
-          # well.
-          addField(header[lastIndex], row[lastIndex])
-          addField(field, row[i]) if i == header.length - 1
+          # console.log 'subFieldsBuffer 2', subFieldsBuffer
+      # console.log 'header', header.length, row.length
+      _.each header, (field, i) =>
+        # nextIndex = i + 1
+        value = row[i]
+        # console.log 'row', i, field, value
+        subFieldParts = getSubFieldParts(field)
+        subHeaderParts = getSubHeaderParts(field)
+
+        if subHeaderParts
+          # console.log 'header', field, subHeaderParts
+          addSubFieldBuffer()
+          resetSubFieldBuffer()
+          subHeader = subHeaderParts[1].trim()
+          @_setUpHeaderContainer(subHeader, rowJson)
+          addSubField(subHeaderParts[2], value)
+        else if subFieldParts
+          # console.log 'sub', field, subFieldParts
+          addSubField(subFieldParts[1], value)
+        else
+          # console.log('left', field)
+          addSubFieldBuffer()
+          addField(field, value)
+      addSubFieldBuffer()
+
+        # if subFieldParts
+        #   if !isCurrentSubField
+        #     isCurrentSubField = true
+        #     subHeaderParts = getSubHeaderParts(header[lastIndex])
+        #     subHeader = subHeaderParts[1].trim()
+        #     addSubField(subHeaderParts[2], row[lastIndex])
+        #   value = row[i]
+        #   addSubField(subFieldParts[1], row[i])
+        # else if isCurrentSubField
+        #   # Ensure all subheadings are present.
+        #   @_setUpHeaderContainer(subHeader, rowJson)
+        #   @_addSubFields(subHeader, subFieldsBuffer, rowJson) if hasNonEmptySubValue
+        #   resetSubFieldBuffer()
+        # else
+        #   # Add field and value from previous index. If we are at the last index, include that as
+        #   # well.
+        #   addField(header[lastIndex], row[lastIndex])
+        #   addField(field, row[i]) if i == header.length - 1
       rowsJson.push(rowJson) if hasNonEmptyValue
     rowsJson
 
@@ -78,6 +105,7 @@ class CustomersCsvTransformer extends CsvTransformer
     if numberedParts
       container.push(subFields)
     else
+      # console.log 'extend', subHeader, subFields
       _.extend(container, subFields)
     container
 

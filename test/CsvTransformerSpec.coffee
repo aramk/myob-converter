@@ -25,6 +25,7 @@ describe 'A CsvTransformer', ->
     csv = getSampleCsv()
     transformer.toJson(csv).then (json) ->
       transformer.fromJson(json).then (newCsv) ->
+        expect(newCsv).to.deep.equal(csv)
         transformer.toJson(newCsv).then (newJson) ->
           # CSV input and stringifier will produce slightly different whitespace, so we check only
           # the JSON.

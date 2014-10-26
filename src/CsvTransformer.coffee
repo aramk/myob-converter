@@ -19,9 +19,10 @@ class CsvTransformer extends JsonTransformer
 
   fromJson: (data) -> @_fromJson(data)
 
-  _fromJson: (data) ->
+  _fromJson: (data, args) ->
+    args = _.extend({header: true, lineBreaks: 'windows', rowDelimiter: 'windows'}, args)
     df = Q.defer()
-    csv.stringify data, {header: true}, (err, result) ->
+    csv.stringify data, args, (err, result) ->
       if err
         df.reject(err)
       else
