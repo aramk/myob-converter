@@ -97,9 +97,7 @@ class MyobCsvTransformer extends CsvTransformer
     @_mapJsonSubFields data, (args) ->
       rowCsv = getOrAddRow(args.rowIndex)
       fieldIndex = headersIndexMap[args.csvField]?[args.subFieldIndex ? 0]
-      # console.log args
       unless fieldIndex?
-        console.log headersIndexMap
         throw new Error('Cannot find header index for field ' + args.csvField)
       rowCsv[fieldIndex] = args.value
     # Add headers last, since rowIndex starts from 0.
