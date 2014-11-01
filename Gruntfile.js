@@ -13,6 +13,24 @@ module.exports = function(grunt) {
 
   // Define the configuration for all the tasks.
   grunt.initConfig({
+    coffee: {
+      dist: {
+        expand: true,
+        flatten: false,
+        cwd: SRC_DIR,
+        src: ['**/*.coffee'],
+        dest: DIST_DIR,
+        ext: '.js'
+      }
+    },
+    copy: {
+      dist: {
+        expand: true,
+        cwd: SRC_DIR,
+        src: ['fixtures/**/*'],
+        dest: DIST_DIR
+      }
+    },
     clean: {
       dist: {
         files: [
@@ -24,16 +42,6 @@ module.exports = function(grunt) {
             ]
           }
         ]
-      }
-    },
-    coffee: {
-      dist: {
-        expand: true,
-        flatten: false,
-        cwd: SRC_DIR,
-        src: ['**/*.coffee'],
-        dest: DIST_DIR,
-        ext: '.js'
       }
     },
     mochaTest: {
@@ -54,7 +62,7 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask('build', 'Build a distributable package.', ['coffee:dist']);
+  grunt.registerTask('build', 'Build a distributable package.', ['coffee:dist', 'copy:dist']);
   grunt.registerTask('test', 'Runs tests.', function (arg1) {
     if (arg1 === undefined) {
       grunt.task.run('mochaTest');
