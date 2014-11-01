@@ -1,16 +1,18 @@
+fs = require('fs')
+path = require('path')
 Q = require('q')
 _ = require('lodash')
 CsvTransformer = require('./CsvTransformer')
 Types = require('./util/Types')
 
-class CustomersCsvTransformer extends CsvTransformer
+class ItemsCsvTransformer extends CsvTransformer
 
   toJson: (data) ->
-    # Customers CSV has duplicate header names, so convert to an array of values instead of an
+    # CSV can have duplicate header names, so convert to an array of values instead of an
     # object.
-    @._toJson(data, {columns: null}).then (rows) => @._toCustomersJson(rows)
+    @._toJson(data, {columns: null}).then (rows) => @._toJsonRows(rows)
 
-  _toCustomersJson: (rows) ->
+  _toJsonRows: (rows) ->
     rowsJson = []
     header = rows.shift()
     reSubFieldParts = /^\s*-\s*([^-]+)/
@@ -78,9 +80,15 @@ class CustomersCsvTransformer extends CsvTransformer
       _.extend(container, subFields)
     container
 
-  fromJson: (data) ->
+  fromJson: (data, args) ->
+    args = _.extend({
+      allHeaders: true
+    }, args)
     rowsCsv = []
-    headers = @_getCsvHeaders(data)
+    if args.allHeaders
+      headers = CSV_FIELDS
+    else
+      headers = @_getCsvHeaders(data)
     headersIndexMap = {}
     _.map headers, (field, i) -> headersIndexMap[field] = i
     getOrAddRow = (rowIndex) -> rowsCsv[rowIndex] ?= []
@@ -125,6 +133,7 @@ class CustomersCsvTransformer extends CsvTransformer
     headers = []
     headersMap = {}
     addHeader = (field) ->
+      return if headersMap[field]?
       # NOTE: Some subfields will be repeated for numbered subheadings, so headersMap will be
       # useless for these.
       headersMap[field] = headers.length
@@ -136,8 +145,6 @@ class CustomersCsvTransformer extends CsvTransformer
 # AUXILIARY
 ####################################################################################################
 
-# NOTE: This contains tabs and spaces.
-CSV_SUBFIELD_PREFIX = '           - '
-getNumberedParts = (name) -> name.match(/^(\w+)\s+(\d+)\s*$/)
+CSV_FIELDS = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures', 'ItemFields.json')))
 
-module.exports = CustomersCsvTransformer
+module.exports = ItemsCsvTransformer
