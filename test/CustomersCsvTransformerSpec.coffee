@@ -1,13 +1,13 @@
 _ = require('lodash')
 expect = require('chai').expect
 CustomersCsvTransformer = require('../src/CustomersCsvTransformer')
-TestUtils = require('./util/TestUtils')
+FileUtils = require('./util/FileUtils')
 
-getFixtureCsv = -> TestUtils.readFixture('CUST.csv')
-getFixtureSmallCsv = -> TestUtils.readFixture('CUST_subset.csv')
-getFixtureJson = -> TestUtils.readFixture('CUST.json')
-getFixtureSmallJson = -> TestUtils.readFixture('CUST_subset.json')
-getFixtureJsonHeaders = -> TestUtils.readFixture('CUST_headers.json')
+getFixtureCsv = -> FileUtils.readFixture('CUST.csv')
+getFixtureSmallCsv = -> FileUtils.readFixture('CUST_subset.csv')
+getFixtureJson = -> FileUtils.readFixture('CUST.json')
+getFixtureSmallJson = -> FileUtils.readFixture('CUST_subset.json')
+getFixtureJsonHeaders = -> FileUtils.readFixture('CUST_headers.json')
 
 describe 'A CustomersCsvTransformer', ->
 

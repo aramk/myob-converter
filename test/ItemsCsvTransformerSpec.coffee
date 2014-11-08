@@ -2,11 +2,11 @@ expect = require('chai').expect
 fs = require('fs')
 path = require('path')
 ItemsCsvTransformer = require('../src/ItemsCsvTransformer')
-TestUtils = require('./util/TestUtils')
+FileUtils = require('./util/FileUtils')
 _ = require('lodash')
 
-getFixtureCsv = -> TestUtils.readFixture('ITEM.csv')
-getFixtureJson = -> TestUtils.readFixture('ITEM.json')
+getFixtureCsv = -> FileUtils.readFixture('ITEM.csv')
+getFixtureJson = -> FileUtils.readFixture('ITEM.json')
 
 describe 'A ItemsCsvTransformer', ->
 

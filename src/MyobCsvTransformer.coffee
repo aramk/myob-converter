@@ -13,8 +13,10 @@ class MyobCsvTransformer extends CsvTransformer
   _toJsonRows: (rows) ->
     rowsJson = []
     header = rows.shift()
+    # E.g. "Addr 1 - Line 1"
+    reSubHeaderParts = /^\s*([^\s-][^-]*)\s+-\s+([^\s-][^-]*)\s*$/
+    # E.g. "           - Line 2"
     reSubFieldParts = /^\s*-\s*([^-]+)/
-    reSubHeaderParts = /^\s*([^\s-][^-]*)\s*-\s*([^\s-][^-]*)\s*$/
     getSubFieldParts = (name) -> name.match(reSubFieldParts)
     getSubFieldName = (name) -> name.replace(reSubFieldParts, '').trim()
     getSubHeaderParts = (name) -> name.match(reSubHeaderParts)

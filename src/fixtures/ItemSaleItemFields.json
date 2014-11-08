@@ -1,0 +1,19 @@
+[
+  "Item Number",
+  "Quantity",
+  "Description",
+  "Price",
+  "Inc-Tax Price",
+  "Discount",
+  "Total",
+  "Inc-Tax Total",
+  "Job",
+  "Tax Code",
+  "Non-GST Amount",
+  "GST Amount",
+  "LCT Amount",
+  "Freight Tax Code",
+  "Freight Non-GST Amount",
+  "Freight GST Amount",
+  "Freight LCT Amount"
+]
