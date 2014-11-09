@@ -23,20 +23,9 @@ describe 'A ItemSalesCsvTransformer', ->
       expect(json).to.deep.equal(expectedJson)
       done()
 
-  # it 'can convert from JSON', (done) ->
-  #   transformer.toJson(expectedCsv).then (json) ->
-  #     transformer.fromJson(json).then (newCsv) ->
-  #       expect(newCsv).to.equal(expectedCsv)
-  #       transformer.toJson(newCsv).then (newJson) ->
-  #         expect(newJson).to.deep.equal(json)
-  #         expect(newJson).to.deep.equal(expectedJson)
-  #         done()
-
-  # it 'can convert from JSON with subset of fields', (done) ->
-  #   expectedJson = JSON.parse(getFixtureSmallJson())
-  #   expectedCsv = getFixtureSmallCsv()
-  #   transformer.fromJson(expectedJson, allHeaders: false).then (newCsv) ->
-  #     expect(newCsv).to.deep.equal(expectedCsv)
-  #     transformer.toJson(expectedCsv).then (json) ->
-  #       expect(json).to.deep.equal(expectedJson)
-  #       done()
+  it 'can convert from JSON', (done) ->
+    transformer.fromJson(expectedJson).then (newCsv) ->
+      expect(newCsv).to.equal(expectedCsv)
+      transformer.toJson(newCsv).then (newJson) ->
+        expect(newJson).to.deep.equal(expectedJson)
+        done()

@@ -6,8 +6,7 @@ _ = require('lodash')
 
 class ItemSalesCsvTransformer extends MyobCsvTransformer
 
-  toJson: (data) ->
-    super(data).then(@_toItemSalesJson)
+  toJson: (data) -> super(data).then(@_toItemSalesJson)
 
   _toItemSalesJson: (data) ->
     # Each row is a product and quantity and part of an invoice, which can span multiple rows.
@@ -40,7 +39,22 @@ class ItemSalesCsvTransformer extends MyobCsvTransformer
     addCurrentInvoiceRow() if currentInvoiceRow
     invoiceRows
 
-  _getAllCsvHeaders: -> JSON.parse(FileUtils.readFixture('SalesFields.json'))
+  fromJson: (data, args) ->
+    rows = @_fromItemSalesJson(data)
+    super(rows, args)
+
+  _fromItemSalesJson: (data) ->
+    rows = []
+    _.each data, (invoiceRow) ->
+      items = invoiceRow[ITEMS_FIELD]
+      _.each items, (item) ->
+        row = _.extend({}, invoiceRow, item)
+        delete row[ITEMS_FIELD]
+        rows.push(row)
+      rows.push({})
+    rows
+
+  _getAllCsvHeaders: -> JSON.parse(FileUtils.readFixture('ItemSaleFields.json'))
 
 ####################################################################################################
 # AUXILIARY

@@ -98,16 +98,24 @@ class MyobCsvTransformer extends CsvTransformer
     getOrAddRow = (rowIndex) -> rowsCsv[rowIndex] ?= []
     @_mapJsonSubFields data, (args) ->
       rowCsv = getOrAddRow(args.rowIndex)
-      fieldIndex = headersIndexMap[args.csvField]?[args.subFieldIndex ? 0]
+      csvField = args.csvField
+      return unless csvField
+      fieldIndex = headersIndexMap[csvField]?[args.subFieldIndex ? 0]
       unless fieldIndex?
-        throw new Error('Cannot find header index for field ' + args.csvField)
+        throw new Error('Cannot find header index for field ' + csvField)
       rowCsv[fieldIndex] = args.value
     # Add headers last, since rowIndex starts from 0.
     rowsCsv.unshift(headers)
     @_fromJson(rowsCsv)
 
+  # Traverses over all subfields and provides the context to a callback function.
   _mapJsonSubFields: (data, callback) ->
     _.each data, (row, rowIndex) =>
+      if Object.keys(row).length == 0
+        # If no fields exist for the row, use the callback with empty values so the output has a
+        # chance to include it as an empty row.
+        callback({fields: [], rowIndex: rowIndex, row: row, csvField: null, value: null})
+        return
       _.each row, (value, field) =>
         context = {fields: [field], rowIndex: rowIndex, row: row}
         if Types.isArray(value)
@@ -120,6 +128,7 @@ class MyobCsvTransformer extends CsvTransformer
         else
           callback(_.extend(context, {csvField: field, value: value}))
 
+  # Runs the given callback with the context for each subfield, providing the CSV field.
   _addSubFieldHeaders: (headerField, subFields, callback, context, getHeaderFieldId) ->
     getHeaderFieldId ?= (field, firstSubField) -> headerField + ' - ' + firstSubField
     subFieldKeys = Object.keys(subFields)
