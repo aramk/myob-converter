@@ -108,6 +108,11 @@ class MyobCsvTransformer extends CsvTransformer
     rowsCsv.unshift(headers)
     @_fromJson(rowsCsv)
 
+  _fromJson: (data, args) ->
+    super(data, args).then (result) ->
+      # Add comma to the end of each line as a delimiter.
+      return result.replace(/([^,\r\n]+)(\r?\n)/gm, '$1,$2')
+
   # Traverses over all subfields and provides the context to a callback function.
   _mapJsonSubFields: (data, callback) ->
     _.each data, (row, rowIndex) =>
