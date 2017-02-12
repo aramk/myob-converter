@@ -34,7 +34,7 @@
     "shelljs": "^0.3.0"
   },
   "scripts": {
-    "prepublish": "grunt build",
+    "prepublish": "grunt build && grunt test",
     "postpublish": "grunt clean:dist",
     "test": "grunt test"
   }
