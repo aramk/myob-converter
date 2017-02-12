@@ -104,17 +104,18 @@ class MyobCsvTransformer extends CsvTransformer
       csvField = args.csvField
       return unless csvField
       fieldIndex = headersIndexMap[csvField]?[args.subFieldIndex ? 0]
-      unless fieldIndex?
-        throw new Error('Cannot find header index for field ' + csvField)
+      unless fieldIndex? then throw new Error('Cannot find header index for field ' + csvField)
       rowCsv[fieldIndex] = args.value
+    _.each rowsCsv, (rowCsv, i) ->
+      # Ignore blank lines.
+      return if rowCsv.length == 0
+      # Add trailing empty cells as empty indices.
+      if rowCsv.length < headers.length
+        for j in [rowCsv.length, headers.length - 1]
+          rowCsv[j] = rowCsv[j] ? null
     # Add headers last, since rowIndex starts from 0.
     rowsCsv.unshift(headers)
     @_fromJson(rowsCsv)
-
-  # _fromJson: (data, args) ->
-  #   super(data, args).then (result) ->
-  #     # Add comma to the end of each line as a delimiter.
-  #     return result.replace(/([^,\r\n]+)(\r?\n)/gm, '$1,$2')
 
   # Traverses over all subfields and provides the context to a callback function.
   _mapJsonSubFields: (data, callback) ->
