@@ -20,13 +20,13 @@
   },
   "devDependencies": {
     "chai": "^1.9.2",
+    "coffee-script": "^1.12.3",
     "grunt": "~0.4.2",
     "grunt-cli": "~0.1.12",
     "grunt-contrib-clean": "^0.5.0",
     "grunt-contrib-coffee": "^0.12.0",
     "grunt-contrib-copy": "~0.5.0",
     "grunt-mocha-test": "^0.12.1",
-    "grunt-node-inspector": "^0.1.5",
     "grunt-shell": "^1.1.1",
     "load-grunt-tasks": "~0.2.1",
     "mocha": "^1.21.5",
@@ -36,6 +36,6 @@
   "scripts": {
     "prepublish": "grunt build",
     "postpublish": "grunt clean:dist",
-    "test": "node --debug-brk grunt test"
+    "test": "grunt test"
   }
 }

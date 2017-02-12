@@ -35,19 +35,26 @@ describe 'A CustomersCsvTransformer', ->
     expect(expectedJson).to.deep.equal(origExpectedJson)
 
   it 'can convert from JSON', (done) ->
+    jsonResult = null
     transformer.toJson(expectedCsv).then (json) ->
-      transformer.fromJson(json).then (newCsv) ->
-        expect(newCsv).to.equal(expectedCsv)
-        transformer.toJson(newCsv).then (newJson) ->
-          expect(newJson).to.deep.equal(json)
-          expect(newJson).to.deep.equal(expectedJson)
-          done()
+      jsonResult = json
+      transformer.fromJson(json)
+    .then (newCsv) ->
+      expect(newCsv).to.equal(expectedCsv)
+      transformer.toJson(newCsv)
+    .then (newJson) ->
+      expect(newJson).to.deep.equal(jsonResult)
+      expect(newJson).to.deep.equal(expectedJson)
+      done()
+    .done()
 
   it 'can convert from JSON with subset of fields', (done) ->
     expectedJson = JSON.parse(getFixtureSmallJson())
     expectedCsv = getFixtureSmallCsv()
     transformer.fromJson(expectedJson, allHeaders: false).then (newCsv) ->
       expect(newCsv).to.deep.equal(expectedCsv)
-      transformer.toJson(expectedCsv).then (json) ->
-        expect(json).to.deep.equal(expectedJson)
-        done()
+      transformer.toJson(expectedCsv)
+    .then (json) ->
+      expect(json).to.deep.equal(expectedJson)
+      done()
+    .done()

@@ -1,19 +1,19 @@
 expect = require('chai').expect
 fs = require('fs')
 path = require('path')
-ItemsCsvTransformer = require('../src/ItemsCsvTransformer')
+JobsCsvTransformer = require('../src/JobsCsvTransformer')
 FileUtils = require('./util/FileUtils')
 _ = require('lodash')
 
-getFixtureCsv = -> FileUtils.readFixture('ITEM.csv')
-getFixtureJson = -> FileUtils.readFixture('ITEM.json')
+getFixtureCsv = -> FileUtils.readFixture('JOBS.csv')
+getFixtureJson = -> FileUtils.readFixture('JOBS.json')
 
-describe 'A ItemsCsvTransformer', ->
+describe 'A JobsCsvTransformer', ->
 
   transformer = expectedCsv = expectedJson = null
 
   beforeEach ->
-    transformer = new ItemsCsvTransformer()
+    transformer = new JobsCsvTransformer()
     expectedCsv = getFixtureCsv()
     expectedJson = JSON.parse(getFixtureJson())
   afterEach -> transformer = null
@@ -39,7 +39,7 @@ describe 'A ItemsCsvTransformer', ->
 
   it 'can convert from a subset of JSON', (done) ->
     subsetJson = _.cloneDeep(expectedJson)
-    fieldsToRemove = ['Buy', 'Item Picture', 'Description']
+    fieldsToRemove = ['Start Date', 'End Date']
     _.each subsetJson, (row) ->
       _.each fieldsToRemove, (field) ->
         delete row[field]

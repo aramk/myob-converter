@@ -8,7 +8,7 @@ class MyobCsvTransformer extends CsvTransformer
   toJson: (data) ->
     # CSV can have duplicate header names, so convert to an array of values instead of an
     # object.
-    @._toJson(data, {columns: null}).then (rows) => @._toJsonRows(rows)
+    @_toJson(data, {columns: null}).then (rows) => @_toJsonRows(rows)
 
   _toJsonRows: (rows) ->
     rowsJson = []
@@ -22,7 +22,9 @@ class MyobCsvTransformer extends CsvTransformer
     getSubHeaderParts = (name) -> name.match(reSubHeaderParts)
     sanitizeValue = (value) -> if !value || value.trim() == '' then null else value
     setFieldValue = (name, value, obj) ->
-      obj[name.trim()] = sanitizeValue(value)
+      name = name.trim()
+      return if _.isEmpty(name)
+      obj[name] = sanitizeValue(value)
       value
     _.each rows, (row) =>
       rowJson = {}
@@ -44,6 +46,7 @@ class MyobCsvTransformer extends CsvTransformer
           @_addSubFields(subHeader, subFieldsBuffer, rowJson)
           resetSubFieldBuffer()
       _.each header, (field, i) =>
+        return if field.trim() == ''
         value = row[i]
         subFieldParts = getSubFieldParts(field)
         subHeaderParts = getSubHeaderParts(field)
@@ -108,10 +111,10 @@ class MyobCsvTransformer extends CsvTransformer
     rowsCsv.unshift(headers)
     @_fromJson(rowsCsv)
 
-  _fromJson: (data, args) ->
-    super(data, args).then (result) ->
-      # Add comma to the end of each line as a delimiter.
-      return result.replace(/([^,\r\n]+)(\r?\n)/gm, '$1,$2')
+  # _fromJson: (data, args) ->
+  #   super(data, args).then (result) ->
+  #     # Add comma to the end of each line as a delimiter.
+  #     return result.replace(/([^,\r\n]+)(\r?\n)/gm, '$1,$2')
 
   # Traverses over all subfields and provides the context to a callback function.
   _mapJsonSubFields: (data, callback) ->

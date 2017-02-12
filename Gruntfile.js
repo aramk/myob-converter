@@ -52,13 +52,6 @@ module.exports = function(grunt) {
         },
         src: ['test/**/*Spec.coffee']
       }
-    },  
-    'node-inspector': {
-      dev: {
-        options: {
-          'hidden': ['node_modules']
-        }
-      }
     }
   });
 
@@ -71,7 +64,6 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask('inspector', 'Runs node-inspector.', ['node-inspector:dev']);
   grunt.registerTask('test:ci', 'Runs tests.', ['mochaTest']);
 
   // FILES

@@ -4,6 +4,7 @@ MyobCsvTransformer = require('./MyobCsvTransformer')
 CustomersCsvTransformer = require('./CustomersCsvTransformer')
 ItemsCsvTransformer = require('./ItemsCsvTransformer')
 ItemSalesCsvTransformer = require('./ItemSalesCsvTransformer')
+JobsCsvTransformer = require('./JobsCsvTransformer')
 
 module.exports =
   MyobConverter: MyobConverter
@@ -12,3 +13,4 @@ module.exports =
   CustomersCsvTransformer: CustomersCsvTransformer
   ItemsCsvTransformer: ItemsCsvTransformer
   ItemSalesCsvTransformer: ItemSalesCsvTransformer
+  JobsCsvTransformer: JobsCsvTransformer

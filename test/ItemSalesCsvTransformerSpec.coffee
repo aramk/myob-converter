@@ -19,13 +19,18 @@ describe 'A ItemSalesCsvTransformer', ->
   it 'can be constructed', -> expect(transformer).not.to.equal(null)
 
   it 'can convert to JSON', (done) ->
-    transformer.toJson(expectedCsv).then (json) ->
-      expect(json).to.deep.equal(expectedJson)
-      done()
+    transformer.toJson(expectedCsv)
+      .then (json) ->
+        expect(json).to.deep.equal(expectedJson)
+        done()
+      .done()
 
   it 'can convert from JSON', (done) ->
-    transformer.fromJson(expectedJson).then (newCsv) ->
-      expect(newCsv).to.equal(expectedCsv)
-      transformer.toJson(newCsv).then (newJson) ->
+    transformer.fromJson(expectedJson)
+      .then (newCsv) ->
+        expect(newCsv).to.equal(expectedCsv)
+        transformer.toJson(newCsv)
+      .then (newJson) ->
         expect(newJson).to.deep.equal(expectedJson)
         done()
+      .done()
