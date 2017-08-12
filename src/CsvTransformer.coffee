@@ -23,6 +23,8 @@ class CsvTransformer extends JsonTransformer
     args = _.extend({header: true, lineBreaks: 'windows', rowDelimiter: 'windows'}, args)
     df = Q.defer()
     csv.stringify data, args, (err, result) ->
+      # Transform any strings with extra quotes.
+      result = result.replace(/"""/g, '"')
       if err
         df.reject(err)
       else

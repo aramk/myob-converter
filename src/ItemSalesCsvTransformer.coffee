@@ -1,8 +1,9 @@
 fs = require('fs')
 path = require('path')
+_ = require('lodash')
+
 FileUtils = require('./util/FileUtils')
 MyobCsvTransformer = require('./MyobCsvTransformer')
-_ = require('lodash')
 
 class ItemSalesCsvTransformer extends MyobCsvTransformer
 
@@ -23,7 +24,7 @@ class ItemSalesCsvTransformer extends MyobCsvTransformer
       _.each ITEM_FIELDS, (field) -> delete row[field]
 
     addInvoiceItems = (row) ->
-      props = pluckObj(row, ITEM_FIELDS)
+      props = _.pick(row, ITEM_FIELDS)
       currentInvoiceRow[ITEMS_FIELD].push(props)
 
     _.each data, (row) ->
@@ -37,7 +38,7 @@ class ItemSalesCsvTransformer extends MyobCsvTransformer
         addInvoiceItems(row)
     
     addCurrentInvoiceRow() if currentInvoiceRow
-    invoiceRows
+    return invoiceRows
 
   fromJson: (data, args) ->
     rows = @_fromItemSalesJson(data)
@@ -63,12 +64,5 @@ class ItemSalesCsvTransformer extends MyobCsvTransformer
 INVOICE_ID_FIELD = 'Invoice #'
 ITEMS_FIELD = 'Items'
 ITEM_FIELDS = JSON.parse(FileUtils.readFixture('ItemSaleItemFields.json'))
-
-# Shallow-copies properties from an object into another object.
-pluckObj = (obj, props) ->
-  result = {}
-  _.each props, (prop) ->
-    result[prop] = obj[prop]
-  result
 
 module.exports = ItemSalesCsvTransformer
